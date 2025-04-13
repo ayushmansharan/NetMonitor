@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>NetMonitor Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    canvas { margin-bottom: 50px; }
+  </style>
+</head>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<body>
+  <h1>NetMonitor: Real-Time Dashboard</h1>
+  <p>Auto-refresh every 10s</p>
+
+  <canvas id="latencyChart" width="600" height="200"></canvas>
+  <canvas id="arpChart" width="600" height="200"></canvas>
+  <canvas id="packetChart" width="600" height="200"></canvas>
+
+  <script>
+    const latencyCtx = document.getElementById('latencyChart').getContext('2d');
+    const arpCtx = document.getElementById('arpChart').getContext('2d');
+    const packetCtx = document.getElementById('packetChart').getContext('2d');
+
+    let latencyChart, arpChart, packetChart;
+
+    function updateCharts(data) {
+      const { timestamps, packets, arp_issues, latency } = data;
+
+      if (!latencyChart) {
+        latencyChart = new Chart(latencyCtx, {
+          type: 'line',
+          data: {
+            labels: timestamps,
+            datasets: [{
+              label: 'Avg Latency (s)',
+              data: latency,
+              borderColor: 'blue',
+              fill: false
+            }]
+          }
+        });
+
+        arpChart = new Chart(arpCtx, {
+          type: 'line',
+          data: {
+            labels: timestamps,
+            datasets: [{
+              label: 'ARP Issues',
+              data: arp_issues,
+              borderColor: 'orange',
+              fill: false
+            }]
+          }
+        });
+
+        packetChart = new Chart(packetCtx, {
+          type: 'line',
+          data: {
+            labels: timestamps,
+            datasets: [{
+              label: 'Packets Captured',
+              data: packets,
+              borderColor: 'green',
+              fill: false
+            }]
+          }
+        });
+
+      } else {
+        latencyChart.data.labels = timestamps;
+        latencyChart.data.datasets[0].data = latency;
+        latencyChart.update();
+
+        arpChart.data.labels = timestamps;
+        arpChart.data.datasets[0].data = arp_issues;
+        arpChart.update();
+
+        packetChart.data.labels = timestamps;
+        packetChart.data.datasets[0].data = packets;
+        packetChart.update();
+      }
+    }
+
+    function fetchData() {
+      fetch('/api/data')
+        .then(res => res.json())
+        .then(updateCharts);
+    }
+
+    fetchData();
+    setInterval(fetchData, 10000);  // refresh every 10s
+  </script>
+</body>
+</html>
