@@ -120,12 +120,7 @@ scapy==2.5.0
 
 ---
 
-## 📄 License
-MIT License
-
----
-
 ## 🙌 Authors
-- You (Your GitHub link or name)
+- Ayushman Sharan
 - Contributors welcome!
 
